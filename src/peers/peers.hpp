@@ -46,13 +46,13 @@ struct chunk {
     uint32_t index;
     bool is_possessed;
     std::vector<peer> peers;
-}
+};
 
 class Client
 {
     private:
         int chunkNumber(uint32_t file_length);
-        int makeFilePublic(uint16_t number_of_files, std::vector<file_info> file_info);
+        int makeFilePublic(uint16_t number_of_files, std::vector<fileInfo> file_info);
         int requestFileAvailable();
         int requestFileLocation(std::string filename, std::vector<chunk> &chunks, int &file_size);
         bool fileExists(std::string filename);
@@ -65,7 +65,7 @@ class Client
         void user_interface();
         void downloadRequestHandler(int process_fd, std::string filename, int chunk_index);
         void split(const std::string &s, std::vector<std::string> &parameters, const char delim);
-        int writeLog(std::string filename, stdd::vector<chumk> chunks);
+        int writeLog(std::string filename, std::vector<chunk> chunks);
         int readLog(std::string filename, std::vector<std::string> &chunks, int &file_size);
     public:
         int execute(void);
