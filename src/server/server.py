@@ -8,7 +8,6 @@ import struct
 class Server:
     data_structure = RoutingInfoDataStructure()
 
-    # creates and handles all connections to the server on individual threads
     def threadHandler(self):
         try:
             s_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -30,21 +29,18 @@ class Server:
             print(request_type)
 
             if request_type == "makeFilePublic":
-                thread = threading.Thread(target=self.receivePublicFiles, args=(client, peer_addr))
+                thread = threading.Thread(target=self.storeReceivedPublicFiles, args=(client, peer_addr))
                 thread.start()
                 print("[ACTIVE CONNECTIONS] ", threading.active_count() - 1)
 
-    # receives all publicly made available files and stores their routing info
-    def receivePublicFiles(self, client:socket.SocketType, peer_addr):
+
+    def storeReceivedPublicFiles(self, client:socket.SocketType, peer_addr):
         print(f"[NEW CONNECTION] {peer_addr} connected")
 
-        byte_size_number_of_files = client.recv(4)
-        number_of_files_buffer_size = struct.unpack('!I', byte_size_number_of_files)[0]
-        number_of_files = client.recv(number_of_files_buffer_size).decode()
-        print(number_of_files)
-
-        random = client.recv(1024).decode()
-        print(random)
+        byte_size_num_of_files = client.recv(4)
+        buff_size_of_num_of_files = struct.unpack('!I', byte_size_num_of_files)[0]
+        num_of_files = client.recv(buff_size_of_num_of_files).decode()
+        print(num_of_files)
         
         # files = []
         # file_count = 0

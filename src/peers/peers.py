@@ -1,13 +1,12 @@
 from peers_structs import *
 import socket
-from sys import getsizeof
 import struct
 
 
 class Client:
-    def makeFilePublic(self, file:list[File]):
-        number_of_files = str(len(file)).encode()
-        byte_size_of_number_of_files = struct.pack('!I', len(number_of_files))
+    def makeFilesPublic(self, files:list[File]):
+        num_of_files = str(len(files)).encode()
+        byte_size_of_num_of_files = struct.pack('!I', len(num_of_files))
 
         request_type = "makeFilePublic".encode()
         byte_size_of_request_type = struct.pack('!I', len(request_type))
@@ -23,9 +22,8 @@ class Client:
         p_sock.sendall(byte_size_of_request_type)
         p_sock.sendall(request_type)
         
-        p_sock.sendall(byte_size_of_number_of_files)
-        p_sock.sendall(number_of_files)
-        p_sock.send("hello".encode())
+        p_sock.sendall(byte_size_of_num_of_files)
+        p_sock.sendall(num_of_files)
         
         # for i in range(len(f ile)):
         #     try:
@@ -37,4 +35,4 @@ class Client:
 file = [File("COE 152", 23), File("Computer Networks", 45)]
 
 peer = Client()
-peer.makeFilePublic(file)
+peer.makeFilesPublic(file)
