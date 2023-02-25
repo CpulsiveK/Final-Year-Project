@@ -11,7 +11,6 @@ class Client:
         request_type = "makeFilePublic".encode()
         byte_size_of_request_type = struct.pack('!I', len(request_type))
 
-        # create a socket and send the number of files the server should expect
         try:
             p_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             p_sock.connect((SERVER_ADDR, PORT))
@@ -25,12 +24,19 @@ class Client:
         p_sock.sendall(byte_size_of_num_of_files)
         p_sock.sendall(num_of_files)
         
-        # for i in range(len(f ile)):
-        #     try:
-        #         p_sock.send(str(file[i].file_name).encode())
-        #         p_sock.send(str(file[i].file_size).encode())
-        #     except socket.error as perror:
-        #         print("Could not send data due to ", perror)
+        for i in range(len(file)):
+            try:
+                byte_size_of_file_name = struct.pack('!I', len(str(file[i].file_name)))
+                p_sock.sendall(byte_size_of_file_name)
+                p_sock.send(str(file[i].file_name).encode())
+
+                byte_size_of_file_size = struct.pack('!I', len(str(file[i].file_size)))
+                p_sock.sendall(byte_size_of_file_size)
+                p_sock.send(str(file[i].file_size).encode())
+            except socket.error as perror:
+                print("Could not send data due to ", perror)
+
+
 
 file = [File("COE 152", 23), File("Computer Networks", 45)]
 

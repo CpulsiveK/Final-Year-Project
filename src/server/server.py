@@ -1,7 +1,4 @@
 from server_structs import *
-import socket
-from _thread import *
-import threading
 import struct
 
 
@@ -29,31 +26,44 @@ class Server:
             print(request_type)
 
             if request_type == "makeFilePublic":
-                thread = threading.Thread(target=self.storeReceivedPublicFiles, args=(client, peer_addr))
-                thread.start()
-                print("[ACTIVE CONNECTIONS] ", threading.active_count() - 1)
+                thread(self.storeReceivedPublicFiles, (client, peer_addr))
+            elif request_type == "":
+                pass
 
 
     def storeReceivedPublicFiles(self, client:socket.SocketType, peer_addr):
         print(f"[NEW CONNECTION] {peer_addr} connected")
 
+        files = []
+
         byte_size_num_of_files = client.recv(4)
         buff_size_of_num_of_files = struct.unpack('!I', byte_size_num_of_files)[0]
         num_of_files = client.recv(buff_size_of_num_of_files).decode()
-        print(num_of_files)
+        num_of_files = int(num_of_files)
+        print(type(num_of_files))
+
+        i = 0
+
+        while i < num_of_files:
+            byte_size_of_file_name = client.recv(4)
+            buff_size_of_file_name = struct.unpack('!I', byte_size_of_file_name)[0]
+            file_name = client.recv(buff_size_of_file_name).decode()
+            print(f"received file name {file_name}")
+
+            byte_size_of_file_size = client.recv(4)
+            buff_size_of_file_size = struct.unpack('!I', byte_size_of_file_size)[0]
+            file_size = client.recv(buff_size_of_file_size).decode()
+            file_size = int(file_size)
+            print(f"received file size {file_size}")
+
+            files.append(File(file_name, file_size))
+
+            i += 1
         
-        # files = []
-        # file_count = 0
-        # connected = True
+        self.data_structure.createDataStructure(files, peer_addr)
 
-        # while connected:
-        #     number_of_files = int(client.recv(1024).decode())
-            
-        #     while file_count < number_of_files:
-        #         files.append(File(client.recv(1024).decode(), int(client.recv(1024).decode())))
-        #         file_count += 1
-
-        #     self.data_structure.createDataStructure(files, peer_addr)
+        print(self.data_structure.shared_files_info)
+        
         
 
 
