@@ -26,13 +26,14 @@ class Server:
             print(request_type)
 
             if request_type == "makeFilePublic":
-                thread(self.storeReceivedPublicFiles, (client, peer_addr))
+                createThread(self.storeReceivedPublicFiles, (client, peer_addr))
             elif request_type == "":
                 pass
 
 
     def storeReceivedPublicFiles(self, client:socket.SocketType, peer_addr):
-        print(f"[NEW CONNECTION] {peer_addr} connected")
+        connected_peer = socket.gethostbyaddr(peer_addr[0])
+        print(f"[NEW CONNECTION] {peer_addr[0]}[{connected_peer[0]}] connected")
 
         files = []
 
@@ -40,7 +41,6 @@ class Server:
         buff_size_of_num_of_files = struct.unpack('!I', byte_size_num_of_files)[0]
         num_of_files = client.recv(buff_size_of_num_of_files).decode()
         num_of_files = int(num_of_files)
-        print(type(num_of_files))
 
         i = 0
 
@@ -60,9 +60,9 @@ class Server:
 
             i += 1
         
-        self.data_structure.createDataStructure(files, peer_addr)
+        self.data_structure.createDataStructure(files, peer_addr[0])
 
-        print(self.data_structure.shared_files_info)
+        print(self.data_structure.routing_info)
         
         
 

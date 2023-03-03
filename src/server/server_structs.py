@@ -2,7 +2,7 @@ from _thread import *
 import threading
 import socket
 
-SERVER_ADDR = socket.gethostbyname("localhost")
+SERVER_ADDR = socket.gethostbyname(socket.gethostname())
 print(SERVER_ADDR)
 PORT = 5050
 
@@ -14,13 +14,22 @@ class File:
 class RoutingInfoDataStructure:
     routing_info = []
     shared_files_info = {}
-
+    
     def createDataStructure(self, files:list[File], peer_addr:str):
-        self.shared_files_info[peer_addr] = files
-        self.routing_info.append(self.shared_files_info)
+        ip_found = False
+    
+        for file in files:
+            for ip in self.shared_files_info:
+                if ip == peer_addr:
+                    self.shared_files_info[peer_addr].append(file)
+                    ip_found = True
+        
+        if not ip_found:
+            self.shared_files_info[peer_addr] = files
+            self.routing_info.append(self.shared_files_info)
+            
 
-
-def thread(function, args: tuple):
+def createThread(function, args: tuple):
     thread = threading.Thread(target=function, args=args)
     thread.start()
     print("[ACTIVE CONNECTIONS] ", threading.active_count() - 1)
