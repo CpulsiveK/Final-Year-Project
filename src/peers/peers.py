@@ -35,6 +35,8 @@ class Client:
                 p_sock.send(str(file[i].file_size).encode())
             except socket.error as perror:
                 print("Could not send data due to ", perror)
+        
+        p_sock.close()
 
 
 
