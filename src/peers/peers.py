@@ -37,6 +37,7 @@ class Client:
                 print("Could not send data due to ", perror)
         
         p_sock.close()
+    
 
 
 

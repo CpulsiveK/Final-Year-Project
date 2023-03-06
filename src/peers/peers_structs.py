@@ -1,4 +1,4 @@
-SERVER_ADDR = "192.168.1.164"
+SERVER_ADDR = "100.66.0.151"
 PORT = 5050
 
 class File:

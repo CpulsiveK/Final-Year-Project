@@ -20,16 +20,13 @@ class Server:
             except socket.error as perror:
                 print(f"Could not accept connections from {peer_addr} due to {perror}")
             
-            byte_size_of_request_type = client.recv(4)
-            buffer_size = struct.unpack('!I', byte_size_of_request_type)[0]
-            request_type = client.recv(buffer_size).decode()
-            print(request_type)
+            byte_size_of_makeFilePublic_request = client.recv(4)
+            makeFilesPublic_buff_size = struct.unpack('!I', byte_size_of_makeFilePublic_request)[0]
+            makeFilePublic_request = client.recv(makeFilesPublic_buff_size).decode()
+            print(makeFilePublic_request)
 
-            if request_type == "makeFilePublic":
+            if makeFilePublic_request == "makeFilePublic":
                 createThread(self.storeReceivedPublicFiles, (client, peer_addr))
-            elif request_type == "":
-                pass
-
 
     def storeReceivedPublicFiles(self, client:socket.SocketType, peer_addr):
         connected_peer = socket.gethostbyaddr(peer_addr[0])
