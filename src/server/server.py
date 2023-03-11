@@ -5,7 +5,19 @@ import struct
 class Server:
     data_structure = RoutingInfoDataStructure()
 
-    def threadHandler(self):
+    def threadHandler(self, client:socket.SocketType, peer_addr):
+        byte_of_request_type = client.recv(4)
+        buff_size = struct.unpack('!I', byte_of_request_type)[0]
+        request_type = client.recv(buff_size).decode()
+        print(request_type)
+
+        if request_type == "makeFilePublic":
+            self.storeReceivedPublicFiles(client, peer_addr)
+        elif request_type == "searchFiles":
+            self.returnSearchedFiles(client, peer_addr)
+
+
+    def startServer(self):
         try:
             s_sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             s_sock.bind((SERVER_ADDR, PORT))
@@ -20,13 +32,10 @@ class Server:
             except socket.error as perror:
                 print(f"Could not accept connections from {peer_addr} due to {perror}")
             
-            byte_size_of_makeFilePublic_request = client.recv(4)
-            makeFilesPublic_buff_size = struct.unpack('!I', byte_size_of_makeFilePublic_request)[0]
-            makeFilePublic_request = client.recv(makeFilesPublic_buff_size).decode()
-            print(makeFilePublic_request)
+            thread = threading.Thread(target=self.threadHandler, args=(client, peer_addr))
+            thread.start()
+            print("[ACTIVE CONNECTIONS] ", threading.active_count() - 1)
 
-            if makeFilePublic_request == "makeFilePublic":
-                createThread(self.storeReceivedPublicFiles, (client, peer_addr))
 
     def storeReceivedPublicFiles(self, client:socket.SocketType, peer_addr):
         connected_peer = socket.gethostbyaddr(peer_addr[0])
@@ -53,16 +62,38 @@ class Server:
             file_size = int(file_size)
             print(f"received file size {file_size}")
 
-            files.append(File(file_name, file_size))
+            file = File(file_name, file_size)
+            files.append(file)
 
             i += 1
         
         self.data_structure.createDataStructure(files, peer_addr[0])
-
         print(self.data_structure.routing_info)
+            
+
+    def returnSearchedFiles(self, client:socket.SocketType, peer_addr):
+        connected_peer = socket.gethostbyaddr(peer_addr[0])
+        print(f"[NEW CONNECTION] {peer_addr[0]}[{connected_peer[0]}] connected")
+
+        byte_of_len_of_filename = client.recv(4)
+        buff_size_of_filename = struct.unpack('!I', byte_of_len_of_filename)[0]
+        filename = client.recv(buff_size_of_filename).decode()
+        print("received ", filename)
+
+        byte_of_len_of_filesize = client.recv(4)
+        buff_size_of_filesize = struct.unpack('!I', byte_of_len_of_filesize)[0]
+        filesize = client.recv(buff_size_of_filesize).decode()
+        filesize = int(filesize)
+        print("received ", filesize)
+
+        file = File(filename, filesize)
+
+        result = self.data_structure.search(file)
+        print(result)
         
+
         
 
 
 server = Server()
-server.threadHandler()
+server.startServer()
