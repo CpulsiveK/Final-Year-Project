@@ -27,9 +27,12 @@ class RoutingInfoDataStructure:
         if not ip_found:
             self.shared_files_info[peer_addr] = files
             self.routing_info.append(self.shared_files_info)
-            
+    
 
-def createThread(function, args: tuple):
-    thread = threading.Thread(target=function, args=args)
-    thread.start()
-    print("[ACTIVE CONNECTIONS] ", threading.active_count() - 1)
+    def search(self, file:File):
+        for i in self.routing_info:
+            if file in i.values():
+                print("found file in ", i)
+                return i.keys()
+        print("File not found!")
+        return None
